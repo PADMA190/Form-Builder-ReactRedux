@@ -54,6 +54,7 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 const FIELD_TYPES: { value: FieldType; label: string; icon: React.ReactNode }[] = [
   { value: 'text', label: 'Text', icon: <TextFieldsIcon color="primary" /> },
@@ -184,6 +185,13 @@ const FormBuilder: React.FC = () => {
     dispatch(deleteField(id));
   };
 
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    if (result.source.index !== result.destination.index) {
+      dispatch(reorderFields({ from: result.source.index, to: result.destination.index }));
+    }
+  };
+
   return (
     <Box display="flex" minHeight="70vh">
       {/* Sidebar Drawer for field types */}
@@ -237,207 +245,230 @@ const FormBuilder: React.FC = () => {
           Form Builder
         </Typography>
         <Paper variant="outlined" sx={{ p: 2, mb: 2, background: '#f8fafd' }}>
-          <List>
-            {fields.map((field, idx) => (
-              <Accordion
-                key={field.id}
-                expanded={expandedField === field.id}
-                onChange={(_, isExpanded) => setExpandedField(isExpanded ? field.id : false)}
-                sx={{ mb: 2, borderRadius: 3, boxShadow: '0 1px 4px rgba(59,31,142,0.04)' }}
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls={`panel-content-${field.id}`}
-                  id={`panel-header-${field.id}`}
-                  sx={{ borderRadius: 3, background: '#fff' }}
-                >
-                  <Box display="flex" alignItems="center" width="100%">
-                    <Box mr={2}>{FIELD_TYPES.find(ft => ft.value === field.type)?.icon}</Box>
-                    <Typography variant="h6" fontWeight={700} color="text.secondary" sx={{ fontSize: 20, flex: 1 }}>
-                      {field.label || 'Untitled Field'}
-                    </Typography>
-                    <Chip
-                      label={field.type.toUpperCase() + (field.derived ? ' (Derived)' : '')}
-                      color={field.derived ? 'secondary' : 'primary'}
-                      sx={{ fontWeight: 600, letterSpacing: 1 }}
-                    />
-                  </Box>
-                </AccordionSummary>
-                <AccordionDetails sx={{ background: '#fff'}}>
-                  <Box display="flex" alignItems="flex-start" gap={4}>
-                    {/* Left: Field preview */}
-                    <Box flex={1} minWidth={180}>
-                      {/* Render a live preview of the field as it will appear to the user */}
-                      {(() => {
-                        switch (field.type) {
-                          case 'text':
-                          case 'number':
-                          case 'textarea':
-                          case 'select':
-                          case 'radio':
-                          case 'checkbox':
-                          case 'date':
-                            return (
-                              <TextField
-                                label={field.label || 'Field'}
-                                type={field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'}
-                                variant="outlined"
-                                fullWidth
-                                InputProps={{ sx: { borderRadius: 24 } }}
-                                disabled
-                                value={field.defaultValue || ''}
-                                multiline={field.type === 'textarea'}
-                                minRows={field.type === 'textarea' ? 3 : undefined}
-                              />
-                            );
-                          default:
-                            return null;
-                        }
-                      })()}
-                    </Box>
-                    {/* Divider */}
-                    <Divider orientation="vertical" flexItem sx={{ mx: 2, borderColor: '#eee' }} />
-                    {/* Right: Configuration */}
-                    <Box flex={2}>
-                      {/* Field config UI below (same as before) */}
-                      <Box>
-                        <TextField
-                          label={<span style={{ fontSize: 18, fontWeight: 500 }}>{'Label'}</span>}
-                          value={field.label}
-                          onChange={e => handleFieldChange(field.id, { label: e.target.value })}
-                          sx={{ mr: 2, mb: 1 }}
-                        />
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={!!field.validation?.required}
-                              onChange={e => handleFieldChange(field.id, { validation: { ...field.validation, required: e.target.checked } })}
-                              color="secondary"
-                            />
-                          }
-                          label="Required"
-                        />
-                        {field.type === 'text' || field.type === 'textarea' ? (
-                          <>
-                            <TextField
-                              label="Min Length"
-                              type="number"
-                              value={field.validation?.minLength || ''}
-                              onChange={e => handleFieldChange(field.id, { validation: { ...field.validation, minLength: Number(e.target.value) } })}
-                              sx={{ mr: 2, mb: 1 }}
-                            />
-                            <TextField
-                              label="Max Length"
-                              type="number"
-                              value={field.validation?.maxLength || ''}
-                              onChange={e => handleFieldChange(field.id, { validation: { ...field.validation, maxLength: Number(e.target.value) } })}
-                              sx={{ mr: 2, mb: 1 }}
-                            />
-                          </>
-                        ) : null}
-                        {field.type === 'text' ? (
-                          <>
-                            <FormControlLabel
-                              control={
-                                <Checkbox
-                                  checked={!!field.validation?.emailFormat}
-                                  onChange={e => handleFieldChange(field.id, { validation: { ...field.validation, emailFormat: e.target.checked } })}
-                                  color="secondary"
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="fields-droppable">
+              {(provided) => (
+                <List ref={provided.innerRef} {...provided.droppableProps}>
+                  {fields.map((field, idx) => (
+                    <Draggable key={field.id} draggableId={field.id} index={idx}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          style={{
+                            ...provided.draggableProps.style,
+                            marginBottom: 16,
+                            opacity: snapshot.isDragging ? 0.8 : 1,
+                            transition: 'box-shadow 0.2s',
+                            boxShadow: snapshot.isDragging ? '0 4px 16px rgba(59,31,142,0.12)' : '0 1px 4px rgba(59,31,142,0.04)',
+                          }}
+                        >
+                          <Accordion
+                            expanded={expandedField === field.id}
+                            onChange={(_, isExpanded) => setExpandedField(isExpanded ? field.id : false)}
+                            sx={{ mb: 0, borderRadius: 3 }}
+                          >
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls={`panel-content-${field.id}`}
+                              id={`panel-header-${field.id}`}
+                              sx={{ borderRadius: 3, background: '#fff' }}
+                            >
+                              <Box display="flex" alignItems="center" width="100%">
+                                <Box mr={2}>{FIELD_TYPES.find(ft => ft.value === field.type)?.icon}</Box>
+                                <Typography variant="h6" fontWeight={700} color="text.secondary" sx={{ fontSize: 20, flex: 1 }}>
+                                  {field.label || 'Untitled Field'}
+                                </Typography>
+                                <Chip
+                                  label={field.type.toUpperCase() + (field.derived ? ' (Derived)' : '')}
+                                  color={field.derived ? 'secondary' : 'primary'}
+                                  sx={{ fontWeight: 600, letterSpacing: 1 }}
                                 />
-                              }
-                              label="Email Format"
-                            />
-                            <FormControlLabel
-                              control={
-                                <Checkbox
-                                  checked={!!field.validation?.passwordRule}
-                                  onChange={e => handleFieldChange(field.id, { validation: { ...field.validation, passwordRule: e.target.checked } })}
-                                  color="secondary"
-                                />
-                              }
-                              label="Password Rule"
-                            />
-                          </>
-                        ) : null}
-                        {(field.type === 'select' || field.type === 'radio' || field.type === 'checkbox') && (
-                          <TextField
-                            label="Options (comma separated)"
-                            value={field.options?.join(',') || ''}
-                            onChange={e => handleFieldChange(field.id, { options: e.target.value.split(',').map(s => s.trim()) })}
-                            sx={{ mr: 2, mb: 1 }}
-                          />
-                        )}
-                        <TextField
-                          label="Default Value"
-                          value={field.defaultValue || ''}
-                          onChange={e => handleFieldChange(field.id, { defaultValue: e.target.value })}
-                          sx={{ mr: 2, mb: 1 }}
-                        />
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={!!field.derived}
-                              onChange={e => handleFieldChange(field.id, { derived: e.target.checked })}
-                              color="secondary"
-                            />
-                          }
-                          label="Derived Field"
-                        />
-                        {field.derived ? (
-                          <Box sx={{ mt: 1, mb: 1 }}>
-                            <FormControl sx={{ minWidth: 200, mr: 2, mb: 1 }}>
-                              <InputLabel id={`parent-select-label-${field.id}`}>Parent Fields</InputLabel>
-                              <Select
-                                labelId={`parent-select-label-${field.id}`}
-                                multiple
-                                value={(field as any).parentFieldIds || []}
-                                onChange={e => handleFieldChange(field.id, { parentFieldIds: e.target.value })}
-                                input={<OutlinedInput label="Parent Fields" />}
-                                renderValue={(selected: any) =>
-                                  fields
-                                    .filter(f => (field as any).parentFieldIds?.includes(f.id))
-                                    .map(f => f.label || f.type)
-                                    .join(', ')
-                                }
-                              >
-                                {fields.filter(f => f.id !== field.id && !f.derived).map(f => (
-                                  <MenuItem key={f.id} value={f.id}>
-                                    <Checkbox checked={(field as any).parentFieldIds?.includes(f.id)} />
-                                    <Typography variant="body2">{f.label || f.type}</Typography>
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                              {fields.filter(f => f.id !== field.id && !f.derived).length === 0 && (
-                                <Typography variant="caption" color="error">Please add and label a parent field first.</Typography>
-                              )}
-                            </FormControl>
-                            <TextField
-                              label="Formula (JS expression, use parent field labels as variables)"
-                              value={(field as any).formula || ''}
-                              onChange={e => handleFieldChange(field.id, { formula: e.target.value })}
-                              sx={{ mr: 2, mb: 1 }}
-                              fullWidth
-                            />
-                          </Box>
-                        ) : null}
-                      </Box>
-                      <Box display="flex" justifyContent="flex-end" mt={2}>
-                        <IconButton edge="end" onClick={() => moveField(idx, idx - 1)} disabled={idx === 0}>
-                          <ArrowUpwardIcon />
-                        </IconButton>
-                        <IconButton edge="end" onClick={() => moveField(idx, idx + 1)} disabled={idx === fields.length - 1}>
-                          <ArrowDownwardIcon />
-                        </IconButton>
-                        <IconButton edge="end" onClick={() => handleDelete(field.id)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </Box>
-                    </Box>
-                  </Box>
-                </AccordionDetails>
-              </Accordion>
-            ))}
-          </List>
+                              </Box>
+                            </AccordionSummary>
+                            <AccordionDetails sx={{ background: '#fff'}}>
+                              <Box display="flex" alignItems="flex-start" gap={4}>
+                                {/* Left: Field preview */}
+                                <Box flex={1} minWidth={180}>
+                                  {/* Render a live preview of the field as it will appear to the user */}
+                                  {(() => {
+                                    switch (field.type) {
+                                      case 'text':
+                                      case 'number':
+                                      case 'textarea':
+                                      case 'select':
+                                      case 'radio':
+                                      case 'checkbox':
+                                      case 'date':
+                                        return (
+                                          <TextField
+                                            label={field.label || 'Field'}
+                                            type={field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'}
+                                            variant="outlined"
+                                            fullWidth
+                                            InputProps={{ sx: { borderRadius: 24 } }}
+                                            disabled
+                                            value={field.defaultValue || ''}
+                                            multiline={field.type === 'textarea'}
+                                            minRows={field.type === 'textarea' ? 3 : undefined}
+                                          />
+                                        );
+                                      default:
+                                        return null;
+                                    }
+                                  })()}
+                                </Box>
+                                {/* Divider */}
+                                <Divider orientation="vertical" flexItem sx={{ mx: 2, borderColor: '#eee' }} />
+                                {/* Right: Configuration */}
+                                <Box flex={2}>
+                                  {/* Field config UI below (same as before) */}
+                                  <Box>
+                                    <TextField
+                                      label={<span style={{ fontSize: 18, fontWeight: 500 }}>{'Label'}</span>}
+                                      value={field.label}
+                                      onChange={e => handleFieldChange(field.id, { label: e.target.value })}
+                                      sx={{ mr: 2, mb: 1 }}
+                                    />
+                                    <FormControlLabel
+                                      control={
+                                        <Checkbox
+                                          checked={!!field.validation?.required}
+                                          onChange={e => handleFieldChange(field.id, { validation: { ...field.validation, required: e.target.checked } })}
+                                          color="secondary"
+                                        />
+                                      }
+                                      label="Required"
+                                    />
+                                    {field.type === 'text' || field.type === 'textarea' ? (
+                                      <>
+                                        <TextField
+                                          label="Min Length"
+                                          type="number"
+                                          value={field.validation?.minLength || ''}
+                                          onChange={e => handleFieldChange(field.id, { validation: { ...field.validation, minLength: Number(e.target.value) } })}
+                                          sx={{ mr: 2, mb: 1 }}
+                                        />
+                                        <TextField
+                                          label="Max Length"
+                                          type="number"
+                                          value={field.validation?.maxLength || ''}
+                                          onChange={e => handleFieldChange(field.id, { validation: { ...field.validation, maxLength: Number(e.target.value) } })}
+                                          sx={{ mr: 2, mb: 1 }}
+                                        />
+                                      </>
+                                    ) : null}
+                                    {field.type === 'text' ? (
+                                      <>
+                                        <FormControlLabel
+                                          control={
+                                            <Checkbox
+                                              checked={!!field.validation?.emailFormat}
+                                              onChange={e => handleFieldChange(field.id, { validation: { ...field.validation, emailFormat: e.target.checked } })}
+                                              color="secondary"
+                                            />
+                                          }
+                                          label="Email Format"
+                                        />
+                                        <FormControlLabel
+                                          control={
+                                            <Checkbox
+                                              checked={!!field.validation?.passwordRule}
+                                              onChange={e => handleFieldChange(field.id, { validation: { ...field.validation, passwordRule: e.target.checked } })}
+                                              color="secondary"
+                                            />
+                                          }
+                                          label="Password Rule"
+                                        />
+                                      </>
+                                    ) : null}
+                                    {(field.type === 'select' || field.type === 'radio' || field.type === 'checkbox') && (
+                                      <TextField
+                                        label="Options (comma separated)"
+                                        value={field.options?.join(',') || ''}
+                                        onChange={e => handleFieldChange(field.id, { options: e.target.value.split(',').map(s => s.trim()) })}
+                                        sx={{ mr: 2, mb: 1 }}
+                                      />
+                                    )}
+                                    <TextField
+                                      label="Default Value"
+                                      value={field.defaultValue || ''}
+                                      onChange={e => handleFieldChange(field.id, { defaultValue: e.target.value })}
+                                      sx={{ mr: 2, mb: 1 }}
+                                    />
+                                    <FormControlLabel
+                                      control={
+                                        <Checkbox
+                                          checked={!!field.derived}
+                                          onChange={e => handleFieldChange(field.id, { derived: e.target.checked })}
+                                          color="secondary"
+                                        />
+                                      }
+                                      label="Derived Field"
+                                    />
+                                    {field.derived ? (
+                                      <Box sx={{ mt: 1, mb: 1 }}>
+                                        <FormControl sx={{ minWidth: 200, mr: 2, mb: 1 }}>
+                                          <InputLabel id={`parent-select-label-${field.id}`}>Parent Fields</InputLabel>
+                                          <Select
+                                            labelId={`parent-select-label-${field.id}`}
+                                            multiple
+                                            value={(field as any).parentFieldIds || []}
+                                            onChange={e => handleFieldChange(field.id, { parentFieldIds: e.target.value })}
+                                            input={<OutlinedInput label="Parent Fields" />}
+                                            renderValue={(selected: any) =>
+                                              fields
+                                                .filter(f => (field as any).parentFieldIds?.includes(f.id))
+                                                .map(f => f.label || f.type)
+                                                .join(', ')
+                                            }
+                                          >
+                                            {fields.filter(f => f.id !== field.id && !f.derived).map(f => (
+                                              <MenuItem key={f.id} value={f.id}>
+                                                <Checkbox checked={(field as any).parentFieldIds?.includes(f.id)} />
+                                                <Typography variant="body2">{f.label || f.type}</Typography>
+                                              </MenuItem>
+                                            ))}
+                                          </Select>
+                                          {fields.filter(f => f.id !== field.id && !f.derived).length === 0 && (
+                                            <Typography variant="caption" color="error">Please add and label a parent field first.</Typography>
+                                          )}
+                                        </FormControl>
+                                        <TextField
+                                          label="Formula (JS expression, use parent field labels as variables)"
+                                          value={(field as any).formula || ''}
+                                          onChange={e => handleFieldChange(field.id, { formula: e.target.value })}
+                                          sx={{ mr: 2, mb: 1 }}
+                                          fullWidth
+                                        />
+                                      </Box>
+                                    ) : null}
+                                  </Box>
+                                  <Box display="flex" justifyContent="flex-end" mt={2}>
+                                    <IconButton edge="end" onClick={() => moveField(idx, idx - 1)} disabled={idx === 0}>
+                                      <ArrowUpwardIcon />
+                                    </IconButton>
+                                    <IconButton edge="end" onClick={() => moveField(idx, idx + 1)} disabled={idx === fields.length - 1}>
+                                      <ArrowDownwardIcon />
+                                    </IconButton>
+                                    <IconButton edge="end" onClick={() => handleDelete(field.id)}>
+                                      <DeleteIcon />
+                                    </IconButton>
+                                  </Box>
+                                </Box>
+                              </Box>
+                            </AccordionDetails>
+                          </Accordion>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </List>
+              )}
+            </Droppable>
+          </DragDropContext>
         </Paper>
         <Button variant="contained" color="primary" onClick={handleSaveForm} disabled={fields.length === 0} sx={{ fontWeight: 600, borderRadius: 2, boxShadow: 2 }}>
           Save Form
