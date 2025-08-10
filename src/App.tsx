@@ -29,9 +29,41 @@ function App() {
           <Box mr={2} fontSize={32}>
             🍳
           </Box>
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 800, letterSpacing: 1, color: '#fff', fontFamily: 'Afacad', fontSize: 32 }}>
-            upliance.ai Form Builder
-          </Typography>
+          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
+            <Typography
+              variant="h2"
+              sx={{
+                fontWeight: 900,
+                fontSize: 36,
+                color: '#fff',
+                fontFamily: 'Afacad',
+                letterSpacing: 1,
+                lineHeight: 1.1,
+                background: 'linear-gradient(90deg, #fff 60%, #FF9900 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                mb: 0.5,
+              }}
+            >
+              upliance.ai
+            </Typography>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 700,
+                fontSize: 24,
+                color: '#fff',
+                fontFamily: 'Afacad',
+                letterSpacing: 1,
+                lineHeight: 1.1,
+                borderBottom: '3px solid #FF9900',
+                pb: 0.5,
+                mb: 0,
+              }}
+            >
+              Form Builder
+            </Typography>
+          </Box>
           {navLinks.map(link => (
             <Button
               key={link.path}
@@ -65,11 +97,11 @@ function App() {
           </Routes>
         </React.Suspense>
       </Container>
-      <Box component="footer" sx={{ width: '100%', background: 'rgb(var(--color-button-background))', py: 3, mt: 4 }}>
+      {/* <Box component="footer" sx={{ width: '100%', background: 'rgb(var(--color-button-background))', py: 3, mt: 4 }}>
         <Typography variant="body2" color="#fff" align="center">
           © {new Date().getFullYear()} upliance.ai — India's first AI cooking assistant
         </Typography>
-      </Box>
+      </Box> */}
     </>
   );
 }

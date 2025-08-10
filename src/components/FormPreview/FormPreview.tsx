@@ -140,164 +140,188 @@ const FormPreview: React.FC = () => {
   }
 
   return (
-    <Paper elevation={6} sx={{ maxWidth: 600, mx: 'auto', p: 4, borderRadius: 4 }}>
-      <Typography variant="h4" gutterBottom fontWeight={700} color="primary" textAlign="center">
-        Form Preview
-      </Typography>
-      <Box component="form" onSubmit={handleSubmit}>
-        {fields.map(field => (
-          <Card key={field.id} elevation={2} sx={{ mb: 3, borderLeft: `6px solid ${field.derived ? '#2575fc' : '#6a11cb'}` }}>
-            <CardContent>
-              <Box display="flex" alignItems="center" mb={1}>
-                {(() => {
-                  switch (field.type) {
-                    case 'text': return <TextFieldsIcon color="primary" sx={{ mr: 1 }} />;
-                    case 'number': return <NumbersIcon color="primary" sx={{ mr: 1 }} />;
-                    case 'textarea': return <NotesIcon color="primary" sx={{ mr: 1 }} />;
-                    case 'date': return <CalendarTodayIcon color="primary" sx={{ mr: 1 }} />;
-                    case 'checkbox': return <CheckBoxIcon color="primary" sx={{ mr: 1 }} />;
-                    case 'radio': return <RadioButtonCheckedIcon color="primary" sx={{ mr: 1 }} />;
-                    case 'select': return <ListAltIcon color="primary" sx={{ mr: 1 }} />;
-                    default: return null;
-                  }
-                })()}
-                <Typography variant="subtitle1" fontWeight={600} color="text.secondary">
-                  {field.label || 'Untitled Field'}
-                </Typography>
-              </Box>
-              {(() => {
-                if (field.derived) {
-                  return (
-                    <TextField
-                      label={field.label}
-                      value={values[field.id] || ''}
-                      InputProps={{ readOnly: true }}
-                      fullWidth
-                      margin="normal"
-                    />
-                  );
-                }
-                switch (field.type) {
-                  case 'text':
-                    return (
-                      <TextField
-                        label={field.label}
-                        value={values[field.id] || ''}
-                        onChange={e => handleChange(field.id, e.target.value)}
-                        fullWidth
-                        margin="normal"
-                        error={!!errors[field.id]?.length}
-                        helperText={errors[field.id]?.[0]}
-                      />
-                    );
-                  case 'number':
-                    return (
-                      <TextField
-                        label={field.label}
-                        type="number"
-                        value={values[field.id] || ''}
-                        onChange={e => handleChange(field.id, e.target.value)}
-                        fullWidth
-                        margin="normal"
-                        error={!!errors[field.id]?.length}
-                        helperText={errors[field.id]?.[0]}
-                      />
-                    );
-                  case 'textarea':
-                    return (
-                      <TextField
-                        label={field.label}
-                        value={values[field.id] || ''}
-                        onChange={e => handleChange(field.id, e.target.value)}
-                        fullWidth
-                        margin="normal"
-                        multiline
-                        minRows={3}
-                        error={!!errors[field.id]?.length}
-                        helperText={errors[field.id]?.[0]}
-                      />
-                    );
-                  case 'select':
-                    return (
-                      <TextField
-                        label={field.label}
-                        select
-                        value={values[field.id] || ''}
-                        onChange={e => handleChange(field.id, e.target.value)}
-                        fullWidth
-                        margin="normal"
-                        error={!!errors[field.id]?.length}
-                        helperText={errors[field.id]?.[0]}
-                      >
-                        {field.options?.map((opt: string) => (
-                          <MenuItem key={opt} value={opt}>{opt}</MenuItem>
-                        ))}
-                      </TextField>
-                    );
-                  case 'radio':
-                    return (
-                      <RadioGroup
-                        value={values[field.id] || ''}
-                        onChange={e => handleChange(field.id, e.target.value)}
-                      >
-                        {field.options?.map((opt: string) => (
-                          <FormControlLabel key={opt} value={opt} control={<Radio />} label={opt} />
-                        ))}
-                      </RadioGroup>
-                    );
-                  case 'checkbox':
-                    return (
-                      <>
-                        {field.options?.map((opt: string) => (
-                          <FormControlLabel
-                            key={opt}
-                            control={
-                              <Checkbox
-                                checked={Array.isArray(values[field.id]) && values[field.id].includes(opt)}
-                                onChange={e => {
-                                  const arr = Array.isArray(values[field.id]) ? [...values[field.id]] : [];
-                                  if (e.target.checked) arr.push(opt);
-                                  else arr.splice(arr.indexOf(opt), 1);
-                                  handleChange(field.id, arr);
-                                }}
-                              />
-                            }
-                            label={opt}
-                          />
-                        ))}
-                      </>
-                    );
-                  case 'date':
-                    return (
-                      <TextField
-                        label={field.label}
-                        type="date"
-                        value={values[field.id] || ''}
-                        onChange={e => handleChange(field.id, e.target.value)}
-                        fullWidth
-                        margin="normal"
-                        InputLabelProps={{ shrink: true }}
-                        error={!!errors[field.id]?.length}
-                        helperText={errors[field.id]?.[0]}
-                      />
-                    );
-                  default:
-                    return null;
-                }
-              })()}
-            </CardContent>
-          </Card>
-        ))}
-        <Button type="submit" variant="contained" color="primary" size="large" sx={{ mt: 2, fontWeight: 600, borderRadius: 2, boxShadow: 2 }}>
-          Validate
-        </Button>
-        {submitted && Object.values(errors).some(arr => arr.length > 0) && (
-          <Alert severity="error" sx={{ mt: 2, fontWeight: 600, fontSize: 18 }}>
-            Please fix the errors above.
-          </Alert>
-        )}
+    <>
+      {/* Banner image at the very top, edge-to-edge, no padding or border radius */}
+      <Box mb={0} display="flex" justifyContent="center">
+        <img
+          src="/banner.png"
+          alt="upliance AI Cooking Assistant Banner"
+          style={{
+            width: '100%',
+            maxWidth: 700,
+            borderRadius: 0,
+            boxShadow: 'none',
+            display: 'block',
+            marginBottom: 0
+          }}
+        />
       </Box>
-    </Paper>
+      <Paper elevation={2} sx={{ maxWidth: 700, mx: 'auto', p: 0, borderRadius: 0, background: '#fff', boxShadow: '0 2px 12px rgba(59,31,142,0.06)' }}>
+        <Box px={6} pt={4} pb={6}>
+          <Typography variant="h4" gutterBottom fontWeight={700} color="primary" textAlign="center" sx={{ mb: 4 }}>
+            Your upliance.ai Form
+          </Typography>
+          <Box component="form" onSubmit={handleSubmit}>
+            {fields.map(field => (
+              <Card key={field.id} elevation={0} sx={{ mb: 4, borderLeft: `4px solid ${field.derived ? '#2575fc' : '#3B1F8E'}`,  background: '#fff', boxShadow: '0 1px 4px rgba(59,31,142,0.04)' }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box display="flex" alignItems="center" mb={1}>
+                    {(() => {
+                      switch (field.type) {
+                        case 'text': return <TextFieldsIcon color="primary" sx={{ mr: 1 }} />;
+                        case 'number': return <NumbersIcon color="primary" sx={{ mr: 1 }} />;
+                        case 'textarea': return <NotesIcon color="primary" sx={{ mr: 1 }} />;
+                        case 'date': return <CalendarTodayIcon color="primary" sx={{ mr: 1 }} />;
+                        case 'checkbox': return <CheckBoxIcon color="primary" sx={{ mr: 1 }} />;
+                        case 'radio': return <RadioButtonCheckedIcon color="primary" sx={{ mr: 1 }} />;
+                        case 'select': return <ListAltIcon color="primary" sx={{ mr: 1 }} />;
+                        default: return null;
+                      }
+                    })()}
+                    <Typography variant="subtitle1" fontWeight={700} color="primary" sx={{ fontSize: 18 }}>
+                      {field.label || 'Untitled Field'}
+                    </Typography>
+                  </Box>
+                  {(() => {
+                    if (field.derived) {
+                      return (
+                        <TextField
+                          label={field.label}
+                          value={values[field.id] || ''}
+                          InputProps={{ readOnly: true }}
+                          fullWidth
+                          margin="normal"
+                        />
+                      );
+                    }
+                    switch (field.type) {
+                      case 'text':
+                        return (
+                          <TextField
+                            label={field.label}
+                            value={values[field.id] || ''}
+                            onChange={e => handleChange(field.id, e.target.value)}
+                            fullWidth
+                            margin="normal"
+                            error={!!errors[field.id]?.length}
+                            helperText={errors[field.id]?.[0]}
+                            InputProps={{ sx: { borderRadius: 0 } }}
+                          />
+                        );
+                      case 'number':
+                        return (
+                          <TextField
+                            label={field.label}
+                            type="number"
+                            value={values[field.id] || ''}
+                            onChange={e => handleChange(field.id, e.target.value)}
+                            fullWidth
+                            margin="normal"
+                            error={!!errors[field.id]?.length}
+                            helperText={errors[field.id]?.[0]}
+                            InputProps={{ sx: { borderRadius: 0 } }}
+                          />
+                        );
+                      case 'textarea':
+                        return (
+                          <TextField
+                            label={field.label}
+                            value={values[field.id] || ''}
+                            onChange={e => handleChange(field.id, e.target.value)}
+                            fullWidth
+                            margin="normal"
+                            multiline
+                            minRows={3}
+                            error={!!errors[field.id]?.length}
+                            helperText={errors[field.id]?.[0]}
+                            InputProps={{ sx: { borderRadius: 0 } }}
+                          />
+                        );
+                      case 'select':
+                        return (
+                          <TextField
+                            label={field.label}
+                            select
+                            value={values[field.id] || ''}
+                            onChange={e => handleChange(field.id, e.target.value)}
+                            fullWidth
+                            margin="normal"
+                            error={!!errors[field.id]?.length}
+                            helperText={errors[field.id]?.[0]}
+                            InputProps={{ sx: { borderRadius: 0 } }}
+                          >
+                            {field.options?.map((opt: string) => (
+                              <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+                            ))}
+                          </TextField>
+                        );
+                      case 'radio':
+                        return (
+                          <RadioGroup
+                            value={values[field.id] || ''}
+                            onChange={e => handleChange(field.id, e.target.value)}
+                          >
+                            {field.options?.map((opt: string) => (
+                              <FormControlLabel key={opt} value={opt} control={<Radio />} label={opt} />
+                            ))}
+                          </RadioGroup>
+                        );
+                      case 'checkbox':
+                        return (
+                          <>
+                            {field.options?.map((opt: string) => (
+                              <FormControlLabel
+                                key={opt}
+                                control={
+                                  <Checkbox
+                                    checked={Array.isArray(values[field.id]) && values[field.id].includes(opt)}
+                                    onChange={e => {
+                                      const arr = Array.isArray(values[field.id]) ? [...values[field.id]] : [];
+                                      if (e.target.checked) arr.push(opt);
+                                      else arr.splice(arr.indexOf(opt), 1);
+                                      handleChange(field.id, arr);
+                                    }}
+                                  />
+                                }
+                                label={opt}
+                              />
+                            ))}
+                          </>
+                        );
+                      case 'date':
+                        return (
+                          <TextField
+                            label={field.label}
+                            type="date"
+                            value={values[field.id] || ''}
+                            onChange={e => handleChange(field.id, e.target.value)}
+                            fullWidth
+                            margin="normal"
+                            InputLabelProps={{ shrink: true }}
+                            error={!!errors[field.id]?.length}
+                            helperText={errors[field.id]?.[0]}
+                            InputProps={{ sx: { borderRadius: 0 } }}
+                          />
+                        );
+                      default:
+                        return null;
+                    }
+                  })()}
+                </CardContent>
+              </Card>
+            ))}
+            <Button type="submit" variant="contained" color="primary" size="large" sx={{ mt: 2, fontWeight: 700, borderRadius: 20, px: 5, py: 1.5, boxShadow: 1 }}>
+              VALIDATE
+            </Button>
+            {submitted && Object.values(errors).some(arr => arr.length > 0) && (
+              <Alert severity="error" sx={{ mt: 2, fontWeight: 600, fontSize: 18 }}>
+                Please fix the errors above.
+              </Alert>
+            )}
+          </Box>
+        </Box>
+      </Paper>
+    </>
   );
 };
 
