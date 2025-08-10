@@ -37,6 +37,8 @@ import {
   Divider,
   Drawer,
   Stack,
+  CardActionArea,
+  Tooltip,
 } from '@mui/material';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -198,45 +200,63 @@ const FormBuilder: React.FC = () => {
       <Drawer
         variant="permanent"
         anchor="left"
-        PaperProps={{ sx: { width: 260, background: '#3B1F8E', color: '#fff', pt: 5, mt: '77px', height: 'calc(100vh - 77px)' } }}
+        PaperProps={{ sx: { width: 260, background: 'rgba(59,31,142,0.85)', color: '#fff', pt: 5, mt: '77px', height: 'calc(100vh - 77px)', backdropFilter: 'blur(8px)', boxShadow: 6, borderRight: 0 } }}
       >
         <Box textAlign="center" mb={3}>
           <Typography variant="h5" sx={{ fontWeight: 700, letterSpacing: 1, color: '#fff', fontSize: 22 }}>
             Form Elements
           </Typography>
         </Box>
-        <Stack spacing={2} alignItems="center">
+        <Box display="flex" flexWrap="wrap" justifyContent="center" alignItems="flex-start" sx={{ px: 2, gap: 1 }}>
           {FIELD_TYPES.map(ft => (
-            <Button
-              key={ft.value}
-              variant="outlined"
-              color="primary"
-              sx={{
-                width: 170,
-                fontWeight: 600,
-                textTransform: 'none',
-                fontSize: 16,
-                background: '#fff',
-                border: '0px solid #3B1F8E',
-                boxShadow: '0 2px 8px rgba(59,31,142,0.06)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-start',
-                gap: 1.5,
-                px: 2,
-                py: 1.2,
-                '&:hover': {
-                  background: '#f3f0fa',
-                  borderColor: '#5B2B90',
-                },
-              }}
-              onClick={() => handleAddField(ft.value)}
-              startIcon={ft.icon}
-            >
-              {ft.label}
-            </Button>
+            <Box key={ft.value} sx={{ width: '70%', height:50, minWidth: 120, mb: 1 ,borderRadius:6}}>
+              <Tooltip title={`Add ${ft.label} field`} arrow placement="right">
+                <CardActionArea
+                  onClick={() => handleAddField(ft.value)}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    height: '100%',
+                    width: '100%',
+                    borderRadius: 1,
+                    background: 'rgba(255,255,255,0.10)',
+                    boxShadow: '0 2px 12px rgba(59,31,142,0.10)',
+                    transition: 'all 0.2s',
+                    border: '2px solid transparent',
+                    px: 1,
+                    '&:hover': {
+                      background: 'rgba(255,255,255,0.18)',
+                      boxShadow: '0 4px 24px rgba(59,31,142,0.18)',
+                      borderColor: '#FF9900',
+                      transform: 'translateY(-2px) scale(1.04)',
+                    },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #FF9900 0%, #3B1F8E 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mr: 1.2,
+                      boxShadow: '0 2px 8px rgba(59,31,142,0.10)',
+                    }}
+                  >
+                    {ft.icon}
+                  </Box>
+                  <Typography variant="subtitle1" sx={{ color: '#fff', fontWeight: 600, fontSize: 16, letterSpacing: 0.5 }}>
+                    {ft.label}
+                  </Typography>
+                </CardActionArea>
+              </Tooltip>
+            </Box>
           ))}
-        </Stack>
+        </Box>
       </Drawer>
       {/* Main content area */}
       <Box flex={1} ml={15}>
