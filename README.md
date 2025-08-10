@@ -1,70 +1,68 @@
-# Getting Started with Create React App
+# upliance.ai Form Builder
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A dynamic form builder built with React, TypeScript, Redux, Material-UI, and localStorage. This project is an assignment for the Associate Software Developer position at upliance.ai.
 
-## Available Scripts
+## Features
+- Create dynamic forms with customizable fields and validations
+- Preview forms as an end user
+- View and manage a list of saved forms
+- All form configurations are persisted in localStorage (no backend)
 
-In the project directory, you can run:
+## Tech Stack
+- React + TypeScript
+- Redux Toolkit
+- Material-UI (MUI)
+- localStorage
 
-### `npm start`
+## Routes
+- `/` — Welcome/landing page
+- `/create` — Build a new form by dynamically adding and configuring fields
+- `/preview` — Interact with the currently built form like an end user
+- `/myforms` — View all previously saved forms from localStorage
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Form Builder Features
+- Add fields: Text, Number, Textarea, Select, Radio, Checkbox, Date
+- Configure each field: Label, Required, Default value, Validations (not empty, min/max length, email, password rule)
+- Mark fields as Derived Fields: select parent field(s) and define a formula
+- Reorder or delete fields
+- Save the form: prompt for a form name and store the schema in localStorage
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Preview Features
+- Render the form as an end user
+- All fields support user input and validation
+- Show validation error messages
+- Derived fields auto-update as parent fields change
 
-### `npm test`
+## My Forms Features
+- List all saved forms from localStorage
+- Each entry shows form name and creation date
+- Clicking a form opens its preview page
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Getting Started
 
-### `npm run build`
+### Prerequisites
+- Node.js (v14 or higher recommended)
+- npm
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Installation
+```bash
+cd upliance
+npm install
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Running the App
+```bash
+npm start
+```
+Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Build for Production
+```bash
+npm run build
+```
 
-### `npm run eject`
+## Deployment
+You can deploy this app to Vercel, Netlify, or any static hosting provider.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## License
+This project is for assignment/demo purposes only.
